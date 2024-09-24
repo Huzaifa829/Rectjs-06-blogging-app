@@ -9,6 +9,8 @@ import Layout from './Layout.jsx'
 import AuthForm from './Screens/authentication/AuthForm.jsx'
 import MyBlog from './components/MyBlog/MyBlog.jsx'
 import MyBlogs from './Screens/MyBlogs/MyBlogs.jsx'
+import SettingCardProfile from './components/SettingCardProfile/SettingCardProfile.jsx'
+import BlogProfilePage from './components/BlogProfilePage/BlogProfilePage.jsx'
 
 const route = createBrowserRouter([
   {
@@ -26,7 +28,15 @@ const route = createBrowserRouter([
       {
         path:'myblogs',
         element:<MyBlogs/>
-      }
+      },
+      {
+        path:'setting',
+        element:<SettingCardProfile/>
+      },
+      {
+        path:'blogprofilepage',
+        element:<BlogProfilePage/>
+      },
     ]
   }
 ])
