@@ -14,7 +14,7 @@ import ProtectedRoutes from './components/ProtectedRoute/ProtectedRoutes.jsx';
 import { store } from './configs/redux/store/store.js';
 import { Provider } from 'react-redux';
 import PostUserProfile from './Screens/PostUserProfile/PostUserProfile.jsx';
-
+import img1 from './assets/loginerror.png'
 const route = createBrowserRouter([
   {
     path:'/',
@@ -42,6 +42,13 @@ const route = createBrowserRouter([
       {
         path:'blogprofilepage/:id',
         element:<ProtectedRoutes component={<PostUserProfile/>}/>
+        // element:<BlogProfilePage/>
+      },
+      {
+        path:'*',
+        element:<>
+        <img src={img1} width={100} />
+        </>
         // element:<BlogProfilePage/>
       },
     ]
