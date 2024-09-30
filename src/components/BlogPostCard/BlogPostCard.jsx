@@ -1,20 +1,28 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const BlogPostCard = ({ profileImage, username, title, date, text }) => {
-  // State to track whether full text is shown
+const BlogPostCard = ({ profileImage, uid,username, title, date, text }) => {
+ 
   const [showFullText, setShowFullText] = useState(false);
+  const navigate = useNavigate()
 
-  // Function to toggle the text visibility
+
   const toggleText = () => {
     setShowFullText(!showFullText);
   };
-
-  // Determine whether to show truncated text or full text
-  const displayText = showFullText ? text : `${text.substring(0, 200)}...`;
+const checking = (uid) =>{
+  // console.log(uid);
+  navigate(`/blogprofilepage/${uid}`)
+  
+}
+ 
+  const displayText = showFullText ? text : `${text.substring(0, 200)}`;
 
   return (
-    <div className="card max-w-ml bg-white shadow-xl rounded-lg overflow-hidden my-4 mx-auto">
-      <div className="flex items-center space-x-4 p-4">
+    <div className="w-full card max-w-ml bg-white shadow-xl rounded-lg overflow-hidden my-4 mx-auto">
+      <div style={{
+      cursor:'pointer'
+    }}  onClick={()=>checking(uid)} className="flex items-center space-x-4 p-4">
         {/* User Profile */}
         <div className="avatar">
           <div className="w-12 rounded-full">

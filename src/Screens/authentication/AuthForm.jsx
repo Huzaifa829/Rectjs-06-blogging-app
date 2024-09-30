@@ -1,19 +1,76 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AuthForm.css'; // Custom CSS for animations and styles
 import { useForm } from 'react-hook-form';
+import { GetDtaFromUserUid_DB, loginWithFB, RegisterWithFB } from '../../configs/FirebaseMethod';
+import alertify from 'alertifyjs';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setCurrentUserData } from '../../configs/redux/reducers/CurrentUser';
 
 const AuthForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const {
+    register: registerForm,
+    handleSubmit: handleRegisterSubmit,
+    formState: { errors: registerErrors },
+  } = useForm();
+  const {
+    register: loginForm,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+  } = useForm();
+  // const { LoginForm, Submit, formState: { errors } } = useForm();
   const [isActive, setIsActive] = useState(false);
 
-  const loginUserFromFirebase = (data) => {
+  const loginUserFromFirebase = async (data) => {
     console.log(data);
-    // Implement login logic here
+    try {
+      const result = await loginWithFB(data);
+      if (result.success) {
+        // console.log('User:', result.user);
+
+        alertify.success('Success! User Login Successfully');
+
+        const result2 = await GetDtaFromUserUid_DB(result.user.uid,"users")
+        dispatch(setCurrentUserData(result2))
+
+        navigate('/')
+
+      } else {
+        console.log(`Error: ${result.errorMessage}`);
+        alertify.error(`Error!  ${result.errorMessage}`);
+      }
+    } catch (error) {
+      console.error('Registration Error:', error);
+    }
   };
 
-  const registerUserToFirebase = (data) => {
-    console.log(data);
-    // Implement registration logic here
+  const registerUserToFirebase = async (data) => {
+
+    try {
+      const result = await RegisterWithFB(data);
+      if (result.success) {
+        console.log('User:', result.user);
+
+        alertify.success('Success! User Registered Successfully');
+        const result2 = await GetDtaFromUserUid_DB(result.user.uid,"users")
+        dispatch(setCurrentUserData(result2))
+        
+        navigate('/')
+
+
+      } else {
+        console.log(`Error: ${result.errorMessage}`);
+        alertify.error('Error! Something went wrong');
+      }
+    } catch (error) {
+      console.error('Registration Error:', error);
+    }
+
+
+
+
   };
 
   const toggleForm = (e) => {
@@ -25,15 +82,15 @@ const AuthForm = () => {
     <div className='ha_main_login_contenar'>
       <div className={`ha-container ${isActive ? 'ha-active' : ''}`} id="ha-container">
         <div className="ha-form-container ha-sign-up">
-          <form onSubmit={handleSubmit(registerUserToFirebase)}>
+          <form onSubmit={handleRegisterSubmit(registerUserToFirebase)}>
             <h1>Create Account</h1>
             <span>or use your email for registration</span>
-            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${errors.username ? 'error' : ''}`}>
+            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${registerErrors.username ? 'error' : ''}`}>
               <input
                 type="text"
                 className="grow"
                 placeholder="Username"
-                {...register('username', {
+                {...registerForm('username', {
                   required: 'Username is required',
                   pattern: {
                     value: /^[a-zA-Z]{4,10}$/,
@@ -42,13 +99,13 @@ const AuthForm = () => {
                 })}
               />
             </label>
-            {errors.username && <span className='text-red-500'>{errors.username.message}</span>}
-            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${errors.email ? 'error' : ''}`}>
+            {registerErrors.username && <span className='text-red-500'>{registerErrors.username.message}</span>}
+            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${registerErrors.email ? 'error' : ''}`}>
               <input
                 type="text"
                 className="grow"
                 placeholder="Email"
-                {...register('email', {
+                {...registerForm('email', {
                   required: 'Email is required',
                   pattern: {
                     value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -57,13 +114,13 @@ const AuthForm = () => {
                 })}
               />
             </label>
-            {errors.email && <span className='text-red-500'>{errors.email.message}</span>}
-            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${errors.password ? 'error' : ''}`}>
+            {registerErrors.email && <span className='text-red-500'>{registerErrors.email.message}</span>}
+            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${registerErrors.password ? 'error' : ''}`}>
               <input
                 type="password"
                 className="grow"
                 placeholder="Password"
-                {...register('password', {
+                {...registerForm('password', {
                   required: 'Password is required',
                   minLength: {
                     value: 6,
@@ -72,21 +129,21 @@ const AuthForm = () => {
                 })}
               />
             </label>
-            {errors.password && <span className='text-red-500'>{errors.password.message}</span>}
+            {registerErrors.password && <span className='text-red-500'>{registerErrors.password.message}</span>}
             <button type="submit">Sign Up</button>
             <button className="ha-hidden" onClick={toggleForm}>Already have an account?</button>
           </form>
         </div>
         <div className="ha-form-container ha-sign-in">
-          <form onSubmit={handleSubmit(loginUserFromFirebase)}>
+          <form onSubmit={handleLoginSubmit(loginUserFromFirebase)}>
             <h1>Sign In</h1>
             <span>or use your email password</span>
-            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${errors.signinEmail ? 'error' : ''}`}>
+            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${loginErrors.signinEmail ? 'error' : ''}`}>
               <input
                 type="text"
                 className="grow"
                 placeholder="Email"
-                {...register('signinEmail', {
+                {...loginForm('signinEmail', {
                   required: 'Email is required',
                   pattern: {
                     value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -95,19 +152,18 @@ const AuthForm = () => {
                 })}
               />
             </label>
-            {errors.signinEmail && <span className='text-red-500'>{errors.signinEmail.message}</span>}
-            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${errors.signinPassword ? 'error' : ''}`}>
+            {loginErrors.signinEmail && <span className='text-red-500'>{loginErrors.signinEmail.message}</span>}
+            <label className={`mb-2 mt-2 bg-[#eee] input input-bordered flex items-center gap-2 ${loginErrors.signinPassword ? 'error' : ''}`}>
               <input
                 type="password"
                 className="grow"
                 placeholder="Password"
-                {...register('signinPassword', {
+                {...loginForm('signinPassword', {
                   required: 'Password is required',
                 })}
               />
             </label>
-            {errors.signinPassword && <span className='text-red-500'>{errors.signinPassword.message}</span>}
-            <a href="#">Forget Your Password?</a>
+            {loginErrors.signinPassword && <span className='text-red-500'>{loginErrors.signinPassword.message}</span>}
             <button type="submit">Sign In</button>
             <button className="ha-hidden" onClick={toggleForm}>Register Now</button>
           </form>

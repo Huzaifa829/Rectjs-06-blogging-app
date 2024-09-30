@@ -1,30 +1,73 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MyBlog from '../../components/MyBlog/MyBlog'
 import PostBlogForm from '../../components/PostBlogForm/PostBlogForm'
 import MyBlogProfilePic from '../../components/MyBlogProfilePic/MyBlogProfilePic';
+import { getallDataInLine } from '../../configs/FirebaseMethod';
+import { useSelector } from 'react-redux';
 
 function MyBlogs() {
-  const [hblog, setBlog] = useState({
-    title: "hfkjshd",
-    text: "jkhdfjksfjshfjkshdfjsdhfjkshjfksjdkf",
-    author: "John Doe", // You can change or make it dynamic
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString(),
-    profileImage: "https://via.placeholder.com/50", // Placeholder image, you can replace
-  });
+  const [getdt, setgetdt] = useState(null)
+  const curentUser = useSelector(state => state.CurrentUser.currentUserdta);
+  const curentUser2 = useSelector(state => state.currentUserPostBlog.currentUserPostBlogDt);
+
+  useEffect(() => {
+    async function wse() {
+      const dt = await getallDataInLine(curentUser.uid, "blogs")
+      if (dt.success) {
+        if (dt.arr == []) {
+          
+          setgetdt(null)
+        }
+        else{
+          setgetdt(dt.arr)
+
+          console.log(dt.arr);
+          console.log(curentUser2);
+          console.log(curentUser);
+        }
+
+      }
+      else {
+        dt.error
+      }
+    }
+    wse()
+  }, [curentUser,curentUser2])
+
+
   return (
     <div className="flex bg-gray-100  min-h-screen text-white">
-      {/* Left side (Main Content) */}
       <div className="flex-grow p-10">
-      <PostBlogForm />
-
-        <MyBlog blog={hblog} />
+        <PostBlogForm />
+        {
+          getdt ? getdt.map((item) => (
+            <MyBlog
+              key={item.id}  
+              blog={{
+                id: item.id,
+                profileImage: item.imgUrl,  
+                username: item.username,    
+                title: item.title,          
+                text: item.text,             
+                date: new Date(item.time.seconds * 1000).toLocaleDateString(),  
+                time: new Date(item.time.seconds * 1000).toLocaleTimeString()  
+              }}
+            />
+          )) :
+            <h1 style={{
+              color: 'black',
+              fontSize: '4rem'
+            }}>Post Your First Blog</h1>
+        }
       </div>
 
-      {/* Right side (Fixed Profile Section) */}
-      <MyBlogProfilePic />
+      <MyBlogProfilePic
+        imgUrl={curentUser?.imgUrl}
+        username={curentUser?.username}
+        email={curentUser?.email}
+      />
     </div>
   )
 }
 
-export default MyBlogs
+export default MyBlogs;
