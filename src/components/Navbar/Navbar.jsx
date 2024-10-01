@@ -2,12 +2,15 @@ import React, { useEffect } from 'react';
 import ImgLogo from '../../assets/bloglogo3.png';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { GetDtaFromUserUid_DB, subscribeToAuthChanges, logoutUser } from '../../configs/FirebaseMethod'; // Import your logout method
+import { GetDtaFromUserUid_DB, subscribeToAuthChanges, logoutUser } from '../../configs/FirebaseMethod';
 import { setCurrentUserData } from '../../configs/redux/reducers/CurrentUser';
+import SearchBar from '../SearchBar/SearchBar';
+
 
 function Navbar() {
   const dispatch = useDispatch();
   const selector = useSelector(state => state.CurrentUser.currentUserdta);
+  const curentUser2 = useSelector(state => state.currentUserPostBlog.currentUserPostBlogDt);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges(async (userUid) => {
@@ -16,12 +19,12 @@ function Navbar() {
     });
 
     return () => unsubscribe();
-  }, [dispatch]);
+  }, [curentUser2]);
 
   const handleLogout = async () => {
     try {
-      await logoutUser(); // Call your Firebase logout function
-      dispatch(setCurrentUserData(null)); // Reset user data in Redux store
+      await logoutUser();
+      dispatch(setCurrentUserData(null));
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -35,9 +38,8 @@ function Navbar() {
         </Link>
       </div>
       <div className="flex-none gap-2">
-        <div className="form-control">
-          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
-        </div>
+        {/* Use the updated SearchBar component */}
+        <SearchBar />
         {selector ? (
           <div className="dropdown dropdown-end">
             <div tabIndex="0" role="button" className="btn btn-ghost btn-circle avatar">
@@ -62,7 +64,7 @@ function Navbar() {
               <Link to='/'><li>Home</li></Link>
               <Link to='/myblogs'><li>My Blogs</li></Link>
               <Link to='/setting'><li>Settings</li></Link>
-              <li onClick={handleLogout} className="cursor-pointer">Logout</li> {/* Call handleLogout on click */}
+              <li onClick={handleLogout} className="cursor-pointer">Logout</li>
             </ul>
           </div>
         ) : (

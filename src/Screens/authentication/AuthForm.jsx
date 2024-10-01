@@ -6,6 +6,7 @@ import alertify from 'alertifyjs';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setCurrentUserData } from '../../configs/redux/reducers/CurrentUser';
+import { setCurrentUserPostBlogDt } from '../../configs/redux/reducers/CurrentPostBlog';
 
 const AuthForm = () => {
   const navigate = useNavigate()
@@ -33,7 +34,12 @@ const AuthForm = () => {
         alertify.success('Success! User Login Successfully');
 
         const result2 = await GetDtaFromUserUid_DB(result.user.uid,"users")
+        console.log(result2.userData);
+        
         dispatch(setCurrentUserData(result2))
+        dispatch(setCurrentUserPostBlogDt(result2))
+        // const curentUser2 = useSelector(state => state.currentUserPostBlog.currentUserPostBlogDt);
+
 
         navigate('/')
 
