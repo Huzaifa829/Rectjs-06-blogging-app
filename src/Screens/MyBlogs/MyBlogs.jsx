@@ -37,7 +37,7 @@ function MyBlogs() {
 
   return (
     <div className="flex bg-gray-100  min-h-screen text-white">
-      <div className="flex-grow p-10">
+      <div id='my_blog_min_screen' className="flex-grow p-10">
         <PostBlogForm />
         {
           getdt ? getdt.map((item) => (

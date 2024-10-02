@@ -1,9 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
+import "./index.css"
 
 function MyBlogProfilePic({ imgUrl, username, email }) {
   return (
-    <div className="w-72 bg-white shadow-lg rounded-lg h-auto text-white fixed right-0 top-15 h-screen p-6">
+    <div id='ha_my_blog_profile' className="w-72 bg-white shadow-lg rounded-lg h-auto text-white fixed right-0 top-15 h-screen p-6">
       <div className="text-center">
         <img
           src={imgUrl || "https://via.placeholder.com/100"} // Use the dynamic imgUrl prop or a placeholder if not provided

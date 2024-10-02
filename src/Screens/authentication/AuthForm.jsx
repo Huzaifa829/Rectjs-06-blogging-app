@@ -11,6 +11,8 @@ import { setCurrentUserPostBlogDt } from '../../configs/redux/reducers/CurrentPo
 const AuthForm = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [Loginloading, setLoginLoading] = useState(false); // Track loading state
+  const [signUploading, setSignUpLoading] = useState(false); // Track loading state
   const {
     register: registerForm,
     handleSubmit: handleRegisterSubmit,
@@ -25,7 +27,8 @@ const AuthForm = () => {
   const [isActive, setIsActive] = useState(false);
 
   const loginUserFromFirebase = async (data) => {
-    console.log(data);
+    setLoginLoading(true)
+    // console.log(data);
     try {
       const result = await loginWithFB(data);
       if (result.success) {
@@ -33,45 +36,59 @@ const AuthForm = () => {
 
         alertify.success('Success! User Login Successfully');
 
-        const result2 = await GetDtaFromUserUid_DB(result.user.uid,"users")
+        const result2 = await GetDtaFromUserUid_DB(result.user.uid, "users")
         console.log(result2.userData);
-        
+
         dispatch(setCurrentUserData(result2))
         dispatch(setCurrentUserPostBlogDt(result2))
         // const curentUser2 = useSelector(state => state.currentUserPostBlog.currentUserPostBlogDt);
 
-
+        setLoginLoading(false)
         navigate('/')
 
       } else {
         console.log(`Error: ${result.errorMessage}`);
         alertify.error(`Error!  ${result.errorMessage}`);
+        setLoginLoading(false)
+
       }
     } catch (error) {
       console.error('Registration Error:', error);
+      alertify.error(`Error!  ${error}`);
+
+      setLoginLoading(false)
+
     }
   };
 
   const registerUserToFirebase = async (data) => {
 
+    setSignUpLoading(true)
     try {
       const result = await RegisterWithFB(data);
       if (result.success) {
         console.log('User:', result.user);
 
         alertify.success('Success! User Registered Successfully');
-        const result2 = await GetDtaFromUserUid_DB(result.user.uid,"users")
+        const result2 = await GetDtaFromUserUid_DB(result.user.uid, "users")
         dispatch(setCurrentUserData(result2))
-        
+
+        setSignUpLoading(false)
         navigate('/')
 
 
       } else {
         console.log(`Error: ${result.errorMessage}`);
-        alertify.error('Error! Something went wrong');
+        alertify.error(`Error! ${result.errorMessage}`);
+        setSignUpLoading(false)
+
       }
     } catch (error) {
       console.error('Registration Error:', error);
+      alertify.error(`Error! ${error}`);
+      setSignUpLoading(false)
+
+
     }
 
 
@@ -136,7 +153,15 @@ const AuthForm = () => {
               />
             </label>
             {registerErrors.password && <span className='text-red-500'>{registerErrors.password.message}</span>}
-            <button type="submit">Sign Up</button>
+            {
+              signUploading ?
+              <button disabled={signUploading}>
+                  <span className="loading loading-bars loading-xs"></span>
+                </button>
+                :
+                <button type="submit">Sign Up</button>
+            
+            }
             <button className="ha-hidden" onClick={toggleForm}>Already have an account?</button>
           </form>
         </div>
@@ -170,7 +195,14 @@ const AuthForm = () => {
               />
             </label>
             {loginErrors.signinPassword && <span className='text-red-500'>{loginErrors.signinPassword.message}</span>}
-            <button type="submit">Sign In</button>
+            {
+              Loginloading ?
+              <button disabled={Loginloading}>
+                  <span className="loading loading-bars loading-xs"></span>
+                </button>
+                :
+                <button type="submit">Sign In</button>
+            }
             <button className="ha-hidden" onClick={toggleForm}>Register Now</button>
           </form>
         </div>
